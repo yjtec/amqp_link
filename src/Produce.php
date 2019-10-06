@@ -34,11 +34,9 @@ class Produce
     {
         $channel = $this->connection->channel();
 
-        list($exchange_name, $type) = config("amqp.{$queue_config}");
-
         $channel->exchange_declare(
-            $exchange_name,
-            $type,
+            config("amqp.{$queue_config}.exchange_name"),
+            config("amqp.{$queue_config}.type"),
             config("amqp.{$queue_config}.passive", false),
             config("amqp.{$queue_config}.durable", true),
             config("amqp.{$queue_config}.auto_delete", false)
@@ -48,7 +46,7 @@ class Produce
 
         $channel->basic_publish(
             $msg,
-            $exchange_name,
+            config("amqp.{$queue_config}.exchange_name"),
             $key
         );
         $channel->close();
