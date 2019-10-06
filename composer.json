@@ -1,0 +1,21 @@
+{
+    "name": "yjtec/amqp_link",
+    "description": "",
+    "type": "library",
+    "require": {
+        "php-amqplib/php-amqplib": "^2.10"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "playhan",
+            "email": "2824643212@qq.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Yjtec\\AmqpLink\\": "src"
+        }
+    }
+}
