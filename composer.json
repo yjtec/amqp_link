@@ -17,5 +17,12 @@
         "psr-4": {
             "Yjtec\\AmqpLink\\": "src"
         }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Yjtec\\AmqpLink\\ProduceTopicServiceProvider"
+            ]
+        }
     }
 }
