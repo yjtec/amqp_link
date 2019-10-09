@@ -7,19 +7,19 @@ use PhpAmqpLib\Message\AMQPMessage;
 
 class Produce
 {
-    private $connection;
 
-    public function __construct($config = null)
+    public function setConfig($config = null)
     {
         if (empty($config)) {
             $config = config('amqp.produce_host');
         }
-        $this->connection = new AMQPStreamConnection(
+        $connection = new AMQPStreamConnection(
             $config['host'],
             $config['port'],
             $config['user'],
             $config['password']
         );
+        return $connection;
     }
 
     /**
@@ -30,9 +30,10 @@ class Produce
      * @param string $type
      * @throws \Exception
      */
-    public function produceExchanges($key, $content, $queue_config = 'default')
+    public function produceExchanges($key, $content, $queue_config = 'default', $config = null)
     {
-        $channel = $this->connection->channel();
+        $connection = $this->setConfig($config);
+        $channel = $connection->channel();
 
         $channel->exchange_declare(
             config("amqp.{$queue_config}.exchange_name"),
@@ -50,6 +51,6 @@ class Produce
             $key
         );
         $channel->close();
-        $this->connection->close();
+        $connection->close();
     }
 }
