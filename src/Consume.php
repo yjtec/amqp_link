@@ -8,24 +8,26 @@ use PhpAmqpLib\Connection\AMQPStreamConnection;
 
 class Consume
 {
-    private $connection;
 
-    public function __construct($config = null)
+    public function setConfig($config = null)
     {
         if (empty($config)) {
             $config = config('amqp.produce_host');
         }
-        $this->connection = new AMQPStreamConnection(
+        $connection = new AMQPStreamConnection(
             $config['host'],
             $config['port'],
             $config['user'],
             $config['password']
         );
+        return $connection;
     }
-
-    public function consumeQueueTopic($callback, $key, $queue_name = 'default',  $queue_config = 'default')
+    public function consumeQueueTopic(
+        $callback, $key, $queue_name = 'default',  $queue_config = 'default', $config = null
+    )
     {
-        $channel = $this->connection->channel();
+        $connection = $this->setConfig($config);
+        $channel = $connection->channel();
 
         $channel->queue_declare(
             $queue_name,
@@ -34,7 +36,13 @@ class Consume
             config("amqp.{$queue_config}.durable", true),
             config("amqp.{$queue_config}.auto_delete", false)
         );
-        $channel->queue_bind($queue_name, config("amqp.{$queue_config}.exchange_name"), $key);
+        if(is_array($key)){
+            foreach ($key as $value){
+                $channel->queue_bind($queue_name, config("amqp.{$queue_config}.exchange_name"), $value);
+            }
+        }else{
+            $channel->queue_bind($queue_name, config("amqp.{$queue_config}.exchange_name"), $key);
+        }
 
         $channel->basic_consume($queue_name, '', false, true, false, false, $callback);
 
@@ -42,6 +50,6 @@ class Consume
             $channel->wait();
         }
         $channel->close();
-        $this->connection->close();
+        $connection->close();
     }
 }
